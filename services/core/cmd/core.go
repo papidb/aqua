@@ -11,6 +11,7 @@ import (
 
 	"github.com/papidb/aqua/pkg/config"
 	"github.com/papidb/aqua/pkg/http/server"
+	"github.com/papidb/aqua/services/core/pkg/controllers"
 )
 
 func main() {
@@ -24,7 +25,19 @@ func main() {
 		panic(err)
 	}
 
-	server := server.NewServer(app)
+	NewServer := &server.Server{
+		App: app,
+	}
+	handler := controllers.MountRoutes(NewServer)
+
+	// Declare Server config
+	server := &http.Server{
+		Addr:         fmt.Sprintf(":%d", app.Env.Port),
+		Handler:      handler,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 30 * time.Second,
+	}
 	defer func() {
 		if err := app.Database.Close(); err != nil {
 			app.Logger.Err(err).Msg("failed to disconnect from postgres cleanly")

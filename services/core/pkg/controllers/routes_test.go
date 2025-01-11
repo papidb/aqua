@@ -1,4 +1,4 @@
-package server
+package controllers
 
 import (
 	"context"
@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/papidb/aqua/pkg/config"
+	"github.com/papidb/aqua/pkg/http/server"
 	"github.com/testcontainers/testcontainers-go"
 )
 
@@ -39,9 +40,9 @@ func TestMain(m *testing.M) {
 }
 
 func TestHelloWorldHandler(t *testing.T) {
-	s := &Server{}
 	r := gin.New()
-	r.GET("/", s.HelloWorldHandler)
+	r.GET("/", helloWorldHandler)
+
 	// Create a test HTTP request
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
@@ -71,14 +72,17 @@ func TestHealthHandler(t *testing.T) {
 		t.Fatal(err)
 		return
 	}
-	s := &Server{
+	s := &server.Server{
 		App: app,
 	}
 
 	r := gin.New()
 	t.Log("hi")
 
-	r.GET("/health", s.healthHandler)
+	r.GET("/health", func(ctx *gin.Context) {
+		healthHandler(ctx, s)
+	})
+
 	// Create a test HTTP request
 	req, err := http.NewRequest("GET", "/health", nil)
 	if err != nil {
