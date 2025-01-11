@@ -1,0 +1,49 @@
+version: "3.8"
+
+name: aqua
+
+services:
+  core:
+    container_name: core
+    image: aqua/backend/core
+    build:
+      context: .
+      dockerfile: docker/core/Dockerfile
+    env_file:
+      - .env
+    environment:
+      - SERVICE_NAME=core-backend
+      - PORT=9400
+    ports:
+      - "9400:9400"
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" # RabbitMQ message broker (AMQP)
+      - "15672:15672" # RabbitMQ Management Console
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
