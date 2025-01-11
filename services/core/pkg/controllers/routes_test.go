@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/papidb/aqua/pkg/config"
+	"github.com/stretchr/testify/assert"
 	"github.com/testcontainers/testcontainers-go"
 )
 
@@ -52,14 +53,10 @@ func TestHelloWorldHandler(t *testing.T) {
 	// Serve the HTTP request
 	r.ServeHTTP(rr, req)
 	// Check the status code
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
+	assert.Equal(t, http.StatusOK, rr.Code, "status code should be 200")
 	// Check the response body
 	expected := "{\"message\":\"Hello World\"}"
-	if rr.Body.String() != expected {
-		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
-	}
+	assert.Equal(t, expected, rr.Body.String(), "response body should be Hello World")
 }
 
 func TestHealthHandler(t *testing.T) {
@@ -102,12 +99,6 @@ func TestHealthHandler(t *testing.T) {
 	fmt.Println(result)
 	// Check the response body
 
-	if result["status"] != "up" {
-		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), "up")
-	}
-
-	if result["message"] != "It's healthy" {
-		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), "It's healthy")
-	}
-
+	assert.Equal(t, result["status"], "up", "status should be up")
+	assert.Equal(t, result["message"], "It's healthy", "message should be It's healthy")
 }

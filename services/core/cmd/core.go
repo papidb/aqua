@@ -9,8 +9,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/papidb/aqua/pkg/config"
 	"github.com/papidb/aqua/services/core/pkg/controllers"
+	middlewares "github.com/papidb/aqua/services/core/pkg/middleware"
 )
 
 func main() {
@@ -23,8 +25,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	handler := controllers.MountRoutes(app)
+	router := gin.Default()
+	middlewares.PrepareRequest(app, router, app.Logger)
+	handler := controllers.MountRoutes(app, router)
 
 	// Declare Server config
 	server := &http.Server{
@@ -34,6 +37,7 @@ func main() {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
+
 	defer func() {
 		if err := app.Database.Close(); err != nil {
 			app.Logger.Err(err).Msg("failed to disconnect from postgres cleanly")
