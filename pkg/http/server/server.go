@@ -7,23 +7,20 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/papidb/aqua/pkg/config"
-	"github.com/papidb/aqua/pkg/database"
 )
 
 type Server struct {
-	port int
-	db   database.Service
+	App *config.App
 }
 
-func NewServer(env config.Env) *http.Server {
+func NewServer(app *config.App) *http.Server {
 	NewServer := &Server{
-		port: env.Port,
-		db:   database.New(env),
+		App: app,
 	}
 
 	// Declare Server config
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", NewServer.port),
+		Addr:         fmt.Sprintf(":%d", app.Env.Port),
 		Handler:      NewServer.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,

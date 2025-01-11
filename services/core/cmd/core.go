@@ -10,41 +10,26 @@ import (
 	"time"
 
 	"github.com/papidb/aqua/pkg/config"
-	"github.com/papidb/aqua/services/core/server"
-	"github.com/uptrace/bun"
+	"github.com/papidb/aqua/pkg/http/server"
 )
 
 func main() {
 	var err error
-
 	var env config.Env
-	if err = config.LoadEnv(&env); err != nil {
+	if err := config.LoadEnv(&env); err != nil {
+		panic(err)
+	}
+	app, err := config.New(env)
+	if err != nil {
 		panic(err)
 	}
 
-	log := config.NewLogger(env.Name)
-
-	// _ctx, cancel := context.WithCancel(context.Background())
-	// defer cancel()
-
-	// connect to postgresql
-	var db *bun.DB
-	if db, err = config.SetupDB(env); err != nil {
-		panic(err)
-	}
+	server := server.NewServer(app)
 	defer func() {
-		if err := db.Close(); err != nil {
-			log.Err(err).Msg("failed to disconnect from postgres cleanly")
+		if err := app.Database.Close(); err != nil {
+			app.Logger.Err(err).Msg("failed to disconnect from postgres cleanly")
 		}
 	}()
-	log.Info().Msg("successfully connected to postgres and has run migrations")
-
-	// app := &config.App{
-	// 	Env: &env, DB: db, Logger: log,
-	// }
-
-	server := server.NewServer(env)
-
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
 

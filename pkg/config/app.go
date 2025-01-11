@@ -6,21 +6,36 @@ import (
 	"sync"
 
 	"github.com/rs/zerolog"
-	"github.com/uptrace/bun"
 )
 
 type App struct {
-	Env    *Env
-	DB     *bun.DB
-	wg     sync.WaitGroup
-	Logger zerolog.Logger
+	Env      *Env
+	Database *Service
+	wg       sync.WaitGroup
+	Logger   zerolog.Logger
+}
+
+func New(env Env) (*App, error) {
+
+	log := NewLogger(env.Name)
+
+	// Connect to the database
+	db := NewDB(env)
+
+	log.Info().Msg("successfully connected to postgres and has run migrations")
+
+	return &App{
+		Env:      &env,
+		Database: db,
+		Logger:   log,
+	}, nil
 }
 
 func HealthChecker(app *App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 
-		if err := app.DB.Ping(); err != nil {
+		if err := app.Database.DB.Ping(); err != nil {
 			http.Error(w, "Could not reach database", http.StatusInternalServerError)
 			return
 		}
