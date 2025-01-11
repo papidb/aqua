@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/papidb/aqua/pkg/config"
-	"github.com/papidb/aqua/pkg/http/server"
 	"github.com/papidb/aqua/services/core/pkg/controllers"
 )
 
@@ -25,10 +24,7 @@ func main() {
 		panic(err)
 	}
 
-	NewServer := &server.Server{
-		App: app,
-	}
-	handler := controllers.MountRoutes(NewServer)
+	handler := controllers.MountRoutes(app)
 
 	// Declare Server config
 	server := &http.Server{

@@ -5,10 +5,12 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/papidb/aqua/pkg/http/server"
+	"github.com/papidb/aqua/pkg/config"
 )
 
-func MountRoutes(s *server.Server) http.Handler {
+func MountRoutes(app *config.App) http.Handler {
+	gin.ForceConsoleColor()
+
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -21,7 +23,7 @@ func MountRoutes(s *server.Server) http.Handler {
 	r.GET("/", helloWorldHandler)
 
 	r.GET("/health", func(ctx *gin.Context) {
-		healthHandler(ctx, s)
+		healthHandler(ctx, app)
 	})
 
 	return r
@@ -34,6 +36,6 @@ func helloWorldHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func healthHandler(c *gin.Context, s *server.Server) {
-	c.JSON(http.StatusOK, s.App.Database.Health())
+func healthHandler(c *gin.Context, app *config.App) {
+	c.JSON(http.StatusOK, app.Database.Health())
 }

@@ -11,7 +11,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/papidb/aqua/pkg/config"
-	"github.com/papidb/aqua/pkg/http/server"
 	"github.com/testcontainers/testcontainers-go"
 )
 
@@ -72,15 +71,12 @@ func TestHealthHandler(t *testing.T) {
 		t.Fatal(err)
 		return
 	}
-	s := &server.Server{
-		App: app,
-	}
 
 	r := gin.New()
 	t.Log("hi")
 
 	r.GET("/health", func(ctx *gin.Context) {
-		healthHandler(ctx, s)
+		healthHandler(ctx, app)
 	})
 
 	// Create a test HTTP request
