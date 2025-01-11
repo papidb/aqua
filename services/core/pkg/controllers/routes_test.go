@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/papidb/aqua/pkg/config"
+	"github.com/papidb/aqua/pkg/entities/customers"
+	middlewares "github.com/papidb/aqua/services/core/pkg/middleware"
 	"github.com/stretchr/testify/assert"
 	"github.com/testcontainers/testcontainers-go"
 )
@@ -70,7 +73,6 @@ func TestHealthHandler(t *testing.T) {
 	}
 
 	r := gin.New()
-	t.Log("hi")
 
 	r.GET("/health", func(ctx *gin.Context) {
 		healthHandler(ctx, app)
@@ -101,4 +103,72 @@ func TestHealthHandler(t *testing.T) {
 
 	assert.Equal(t, result["status"], "up", "status should be up")
 	assert.Equal(t, result["message"], "It's healthy", "message should be It's healthy")
+}
+
+func TestCreateCustomerHandler(t *testing.T) {
+	r := gin.New()
+	r.POST(
+		"/customers",
+		middlewares.ValidationMiddleware(&customers.CreateCustomerDTO{}),
+		createCustomerHandler,
+	)
+
+	tests := []struct {
+		name           string
+		payload        string
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name:           "Valid payload",
+			payload:        `{"name":"Jane Doe","email":"jane.doe@example.com"}`,
+			expectedStatus: http.StatusOK,
+			expectedBody:   `{"message":"Validation passed"}`,
+		},
+		{
+			name:           "Invalid payload - missing required fields",
+			payload:        `{"name":"","email":""}`,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"message":"We could not validate your request.","data":{"validation_error":{"email":"cannot be blank","name":"cannot be blank"}}}`,
+		},
+		{
+			name:           "Invalid email payload",
+			payload:        `{"name":"Jane Doe","email":"invalid.com"}`,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"message":"We could not validate your request.","data":{"validation_error":{"email":"must be a valid email address"}}}`,
+		},
+		{
+			name:           "Malformed JSON",
+			payload:        `{"name":"Jane Doe","email":"jane.doe@example.com",`,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"details":"unexpected EOF","error":"Invalid request format"}`,
+		},
+		{
+			name:           "Unsupported media type",
+			payload:        `<xml><name>Jane Doe</name></xml>`,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody:   `{"details":"invalid character '<' looking for beginning of value", "error":"Invalid request format"}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a test HTTP request
+			req := httptest.NewRequest(http.MethodPost, "/customers", bytes.NewBuffer([]byte(tt.payload)))
+			req.Header.Set("Content-Type", "application/json")
+
+			// Create a test HTTP response recorder
+			w := httptest.NewRecorder()
+
+			// Perform the test HTTP request
+			r.ServeHTTP(w, req)
+
+			// Assert the status code
+			assert.Equal(t, tt.expectedStatus, w.Code)
+
+			// Assert the response body
+			assert.JSONEq(t, tt.expectedBody, w.Body.String())
+		})
+	}
+
 }

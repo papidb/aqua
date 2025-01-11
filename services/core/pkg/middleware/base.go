@@ -11,6 +11,5 @@ import (
 func PrepareRequest(app *config.App, r *gin.Engine, log zerolog.Logger) *gin.Engine {
 	r.Use(enableCors(app))
 	r.Use(gin.Recovery())
-
 	return r
 }

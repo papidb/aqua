@@ -5,6 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/papidb/aqua/pkg/config"
+	"github.com/papidb/aqua/pkg/entities/customers"
+	middlewares "github.com/papidb/aqua/services/core/pkg/middleware"
 )
 
 func MountRoutes(app *config.App, r *gin.Engine) http.Handler {
@@ -16,15 +18,19 @@ func MountRoutes(app *config.App, r *gin.Engine) http.Handler {
 	})
 
 	// create customer
-	r.POST("/customers", dummyHandler)
+	r.POST(
+		"/customers",
+		middlewares.ValidationMiddleware(&customers.CreateCustomerDTO{}),
+		createCustomerHandler,
+	)
 	// add cloud resource to customer
-	r.POST("/customers/:customer_id/resources", dummyHandler)
+	r.POST("/customers/:customer_id/resources", addCloudResourceHandler)
 	// Fetch Cloud Resources by Customer
-	r.GET("/customers/:customer_id/resources", dummyHandler)
+	r.GET("/customers/:customer_id/resources", fetchCloudResourcesHandler)
 	// Update Resource Information
-	r.PUT("/customers/:customer_id/resources/:resource_id", dummyHandler)
+	r.PUT("/resources/:resource_id", updateResourceHandler)
 	// Delete a Resource
-	r.DELETE("/customers/:customer_id/resources/:resource_id", dummyHandler)
+	r.DELETE("/resources/:resource_id", deleteResourceHandler)
 
 	return r
 }
