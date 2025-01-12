@@ -59,3 +59,11 @@ func (r *Repo) Find(ctx context.Context, id string) (*Customer, error) {
 
 	return customer, err
 }
+
+func (r *Repo) DeleteCustomerResource(ctx context.Context, resource_id string) error {
+	_, err := r.db.NewDelete().
+		Model((*CustomerResource)(nil)).
+		Where("resource_id = ?", resource_id).
+		Exec(ctx)
+	return err
+}

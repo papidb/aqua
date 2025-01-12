@@ -44,7 +44,7 @@ func MountRoutes(app *config.App, r *gin.Engine) http.Handler {
 		middlewares.ValidationBodyMiddleware(&resources.UpdateResourceDTO{}),
 		updateResourceHandler(app, resourceService))
 	// Delete a Resource
-	r.DELETE("/resources/:resource_id", deleteResourceHandler(app))
+	r.DELETE("/resources/:resource_id", deleteResourceHandler(app, resourceService, customerService))
 
 	return r
 }

@@ -102,3 +102,7 @@ func (svc *CustomerService) FetchCloudResourcesByCustomerID(ctx context.Context,
 
 	return resourcesList, nil
 }
+
+func (svc *CustomerService) DeleteCustomerResource(ctx context.Context, resource_id string) error {
+	return svc.CustomersRepo.DeleteCustomerResource(ctx, resource_id)
+}

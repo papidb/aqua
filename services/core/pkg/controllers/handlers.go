@@ -144,10 +144,43 @@ func updateResourceHandler(_ *config.App, resourceService *resources.ResourceSer
 	}
 }
 
-func deleteResourceHandler(_ *config.App) gin.HandlerFunc {
+func deleteResourceHandler(_ *config.App, resourceService *resources.ResourceService, customerService *customers.CustomerService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "dummy",
+		resource_id := c.Param("resource_id")
+
+		ctx := c.Request.Context()
+		resource, err := resourceService.DeleteResource(ctx, resource_id)
+		if api.HandleMappedErrors(c, err, errorMapping) {
+			return
+		}
+
+		if err != nil {
+			api.Error(c.Request, c.Writer, api.AppErr{
+				Code:    http.StatusBadRequest,
+				Message: "We could not delete resource.",
+				Err:     err,
+			})
+			return
+		}
+
+		err = customerService.DeleteCustomerResource(ctx, resource_id)
+		if api.HandleMappedErrors(c, err, errorMapping) {
+			return
+		}
+
+		if err != nil {
+			api.Error(c.Request, c.Writer, api.AppErr{
+				Code:    http.StatusBadRequest,
+				Message: "We could not delete resource.",
+				Err:     err,
+			})
+			return
+		}
+
+		api.Success(c.Request, c.Writer, &api.AppResponse{
+			Message: "Deleted resource successfully",
+			Data:    resource,
+			Code:    http.StatusCreated,
 		})
 	}
 }

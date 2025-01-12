@@ -38,3 +38,12 @@ func (r *Repo) Update(ctx context.Context, resource *Resource) error {
 
 	return err
 }
+
+func (r *Repo) Delete(ctx context.Context, resource *Resource) error {
+	_, err := r.db.NewDelete().
+		Model(resource).
+		Where("id = ?", resource.ID).
+		Exec(ctx)
+
+	return err
+}
