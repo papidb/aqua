@@ -16,9 +16,12 @@ services:
     ports:
       - "9400:9400"
     restart: always
+    volumes:
+      - .:/go/src/app
+      - /go/src/app/tmp
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    
+
   aqua_notification_dev:
     container_name: aqua_notification_dev
     image: aqua/backend/notification
@@ -34,6 +37,9 @@ services:
     ports:
       - "9401:9401"
     restart: always
+    volumes:
+      - .:/go/src/app
+      - /go/src/app/tmp
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

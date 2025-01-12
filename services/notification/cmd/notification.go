@@ -22,7 +22,7 @@ func main() {
 	cli.RootCmd.AddCommand(cli.SeedCmd)
 	cli.RootCmd.AddCommand(&cobra.Command{
 		Use:   "server",
-		Short: "Start the Gin server",
+		Short: "Start the Notification server",
 		Run:   startServer,
 	})
 
