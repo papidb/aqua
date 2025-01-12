@@ -5,6 +5,7 @@ import (
 
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/papidb/aqua/pkg/entities/resources"
 	"github.com/uptrace/bun"
 )
 
@@ -66,4 +67,15 @@ func (r *Repo) DeleteCustomerResource(ctx context.Context, resource_id string) e
 		Where("resource_id = ?", resource_id).
 		Exec(ctx)
 	return err
+}
+
+func (r *Repo) FetchCustomersResourcesByCustomerID(ctx context.Context, customerID string) ([]resources.Resource, error) {
+	var resourcesList []resources.Resource
+	err := r.db.NewSelect().
+		Model((*CustomerResource)(nil)).
+		ColumnExpr("r.*").
+		Join("JOIN resources AS r ON r.id = cr.resource_id").
+		Where("cr.customer_id = ?", customerID).
+		Scan(ctx, &resourcesList)
+	return resourcesList, err
 }

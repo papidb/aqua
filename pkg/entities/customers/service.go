@@ -87,14 +87,8 @@ func (svc *CustomerService) AddResourceToCustomer(ctx context.Context, customer_
 }
 
 func (svc *CustomerService) FetchCloudResourcesByCustomerID(ctx context.Context, customerID string) ([]resources.Resource, error) {
-	var resourcesList []resources.Resource
 
-	err := svc.db.NewSelect().
-		Model((*CustomerResource)(nil)).
-		ColumnExpr("r.*").
-		Join("JOIN resources AS r ON r.id = cr.resource_id").
-		Where("cr.customer_id = ?", customerID).
-		Scan(ctx, &resourcesList)
+	resourcesList, err := svc.CustomersRepo.FetchCustomersResourcesByCustomerID(ctx, customerID)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch resources for customer %s: %w", customerID, err)

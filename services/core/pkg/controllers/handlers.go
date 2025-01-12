@@ -109,7 +109,7 @@ func fetchCloudResourcesHandler(_ *config.App, customerService *customers.Custom
 		}
 
 		api.Success(c.Request, c.Writer, &api.AppResponse{
-			Message: "Resource added to customer successfully",
+			Message: "Resources fetched successfully",
 			Data:    resources,
 			Code:    http.StatusCreated,
 		})
