@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,6 +16,13 @@ func helloWorldHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+var errorMapping = map[error]int{
+	customers.ErrExistingEmailOrName{}:      http.StatusBadRequest,
+	customers.ErrExistingCustomerResource{}: http.StatusBadRequest,
+	api.ErrCustomerNotFound:                 http.StatusNotFound,
+	api.ErrResourceNotFound:                 http.StatusNotFound,
+}
+
 func healthHandler(c *gin.Context, app *config.App) {
 	c.JSON(http.StatusOK, app.Database.Health())
 }
@@ -28,14 +34,11 @@ func createCustomerHandler(_ *config.App, customerService *customers.CustomerSer
 
 		ctx := c.Request.Context()
 		customer, err := customerService.CreateCustomer(ctx, req)
-		if errors.Is(err, customers.ErrExistingEmailOrName{}) {
-			api.Error(c.Request, c.Writer, api.AppErr{
-				Code:    http.StatusBadRequest,
-				Message: err.Error(),
-				Err:     err,
-			})
+
+		if api.HandleMappedErrors(c, err, errorMapping) {
 			return
 		}
+
 		if err != nil {
 			api.Error(c.Request, c.Writer, api.AppErr{
 				Code:    http.StatusBadRequest,
@@ -61,20 +64,14 @@ func addCloudResourceHandler(_ *config.App, customerService *customers.CustomerS
 		customerID := c.Param("customer_id")
 
 		customer, resource, err := customerService.AddResourceToCustomer(c.Request.Context(), customerID, dto)
-
-		if errors.Is(err, customers.ErrExistingCustomerResource{}) {
-			api.Error(c.Request, c.Writer, api.AppErr{
-				Code:    http.StatusBadRequest,
-				Message: err.Error(),
-				Err:     err,
-			})
+		if api.HandleMappedErrors(c, err, errorMapping) {
 			return
 		}
 
-		if (err != nil) || (customer == nil) {
+		if err != nil {
 			api.Error(c.Request, c.Writer, api.AppErr{
 				Code:    http.StatusBadRequest,
-				Message: "We could not add your resource to your customer.",
+				Message: "We could not add your resource to customer.",
 				Err:     err,
 			})
 			return

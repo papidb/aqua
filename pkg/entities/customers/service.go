@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/papidb/aqua/pkg/api"
 	"github.com/papidb/aqua/pkg/entities/resources"
 	"github.com/papidb/aqua/pkg/internal"
 	"github.com/uptrace/bun"
@@ -57,14 +58,14 @@ func (svc *CustomerService) AddResourceToCustomer(ctx context.Context, customer_
 
 	if (err != nil) || (resource == nil) {
 		tx.Rollback()
-		return nil, nil, fmt.Errorf("resource not found")
+		return nil, nil, api.ErrResourceNotFound
 	}
 
 	customer, err := svc.CustomersRepo.WithDB(tx).Find(ctx, customer_id)
 
 	if (err != nil) || (customer == nil) {
 		tx.Rollback()
-		return nil, nil, fmt.Errorf("customer not found")
+		return nil, nil, api.ErrCustomerNotFound
 	}
 
 	// link customer to resource

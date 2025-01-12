@@ -1,6 +1,15 @@
 package api
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/gin-gonic/gin"
+)
+
+// error not found
+var ErrCustomerNotFound = errors.New("customer not found")
+var ErrResourceNotFound = errors.New("resource not found")
 
 type AppErr struct {
 	Code    int         `json:"-"`
@@ -18,3 +27,17 @@ func (e AppErr) Error() string {
 }
 
 func (e AppErr) Unwrap() error { return e.Err }
+
+func HandleMappedErrors(c *gin.Context, err error, errorMapping map[error]int) bool {
+	for e, status := range errorMapping {
+		if errors.Is(err, e) {
+			Error(c.Request, c.Writer, AppErr{
+				Code:    status,
+				Message: err.Error(),
+				Err:     err,
+			})
+			return true
+		}
+	}
+	return false
+}
