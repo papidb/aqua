@@ -8,11 +8,12 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func ListenForNotifications(
-	env *Env,
-	queueName string, msgHandler func(msg string)) {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+func ListenForNotifications(env Env, msgHandler func(msg string)) {
+	fmt.Println("Connecting to RabbitMQ...")
+	url := urlFromEnv(env)
+	conn, err := amqp.Dial(url)
 	if err != nil {
+		fmt.Println("Failed to connect to RabbitMQ:", url)
 		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
 	}
 	defer conn.Close()
@@ -24,13 +25,14 @@ func ListenForNotifications(
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		queueName,
-		false,
+		env.RabbitMQQueue,
+		true,
 		false,
 		false,
 		false,
 		nil,
 	)
+
 	if err != nil {
 		log.Fatalf("Failed to declare a queue: %v", err)
 	}
@@ -54,11 +56,9 @@ func ListenForNotifications(
 }
 
 func urlFromEnv(env Env) string {
-
-	_, err := strconv.Atoi(env.PostgresPort)
+	_, err := strconv.Atoi(env.RabbitMQPort)
 	if err != nil {
-		panic(fmt.Sprintf("Invalid Postgres port: %s", env.PostgresPort))
+		panic(fmt.Sprintf("Invalid AMQP port: %s", env.RabbitMQPort))
 	}
-
-	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", env.PostgresUser, env.PostgresPassword, env.PostgresHost, env.PostgresPort, env.PostgresDatabase)
+	return fmt.Sprintf("amqp://%s:%s@%s:%s/", env.RabbitMQUser, env.RabbitMQPassword, env.RabbitMQHost, env.RabbitMQPort)
 }

@@ -31,11 +31,11 @@ type Env struct {
 	PostgresDatabase   string `required:"true" split_words:"true"`
 	PostgresDebug      bool   `default:"false" split_words:"true"`
 
-	RabbitMQHost     string `envconfig:"RABBIT_MQ_DEFAULT_USER" required:"true" split_words:"true"`
+	RabbitMQHost     string `envconfig:"RABBIT_MQ_HOST" required:"true" split_words:"true"`
 	RabbitMQPort     string `envconfig:"RABBIT_MQ_PORT" required:"true" split_words:"true"`
-	RabbitMQUser     string `envconfig:"RABBIT_MQ_DEFAULT_USER" required:"true" split_words:"true"`
-	RabbitMQPassword string `envconfig:"RABBIT_MQ_DEFAULT_USER" required:"true" split_words:"true"`
-	RabbitMQQueue    string `envconfig:"RABBIT_MQ_DEFAULT_USER" required:"true" split_words:"true"`
+	RabbitMQUser     string `envconfig:"RABBITMQ_DEFAULT_USER" required:"true" split_words:"true"`
+	RabbitMQPassword string `envconfig:"RABBITMQ_DEFAULT_PASS" required:"true" split_words:"true"`
+	RabbitMQQueue    string `envconfig:"RABBIT_MQ_QUEUE" required:"true" split_words:"true"`
 }
 
 // LoadEnv loads environment variables into env
