@@ -17,3 +17,9 @@ func (r CreateCustomerDTO) Validate() error {
 		validation.Field(&r.Email, validation.Required, is.Email),
 	)
 }
+
+type ErrExistingEmailOrName struct{}
+
+func (e ErrExistingEmailOrName) Error() string {
+	return "email or name already in use"
+}

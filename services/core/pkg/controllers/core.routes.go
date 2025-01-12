@@ -12,6 +12,9 @@ import (
 func MountRoutes(app *config.App, r *gin.Engine) http.Handler {
 	gin.ForceConsoleColor()
 
+	customerRepo := customers.NewRepo(app.Database.DB)
+	customerService := customers.NewService(app.Database.DB, customerRepo)
+
 	r.GET("/", helloWorldHandler)
 	r.GET("/health", func(ctx *gin.Context) {
 		healthHandler(ctx, app)
@@ -21,7 +24,7 @@ func MountRoutes(app *config.App, r *gin.Engine) http.Handler {
 	r.POST(
 		"/customers",
 		middlewares.ValidationMiddleware(&customers.CreateCustomerDTO{}),
-		createCustomerHandler,
+		createCustomerHandler(app, customerService),
 	)
 	// add cloud resource to customer
 	r.POST("/customers/:customer_id/resources", addCloudResourceHandler)

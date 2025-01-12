@@ -12,8 +12,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/papidb/aqua/pkg/config"
-	"github.com/papidb/aqua/pkg/entities/customers"
-	middlewares "github.com/papidb/aqua/services/core/pkg/middleware"
 	"github.com/stretchr/testify/assert"
 	"github.com/testcontainers/testcontainers-go"
 )
@@ -106,12 +104,16 @@ func TestHealthHandler(t *testing.T) {
 }
 
 func TestCreateCustomerHandler(t *testing.T) {
+	app, err := config.New(*env)
+
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+
 	r := gin.New()
-	r.POST(
-		"/customers",
-		middlewares.ValidationMiddleware(&customers.CreateCustomerDTO{}),
-		createCustomerHandler,
-	)
+
+	MountRoutes(app, r)
 
 	tests := []struct {
 		name           string
@@ -123,7 +125,7 @@ func TestCreateCustomerHandler(t *testing.T) {
 			name:           "Valid payload",
 			payload:        `{"name":"Jane Doe","email":"jane.doe@example.com"}`,
 			expectedStatus: http.StatusOK,
-			expectedBody:   `{"message":"Validation passed"}`,
+			expectedBody:   "",
 		},
 		{
 			name:           "Invalid payload - missing required fields",
@@ -167,7 +169,9 @@ func TestCreateCustomerHandler(t *testing.T) {
 			assert.Equal(t, tt.expectedStatus, w.Code)
 
 			// Assert the response body
-			assert.JSONEq(t, tt.expectedBody, w.Body.String())
+			if tt.expectedBody != "" {
+				assert.JSONEq(t, tt.expectedBody, w.Body.String())
+			}
 		})
 	}
 

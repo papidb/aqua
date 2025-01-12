@@ -1,10 +1,11 @@
 package controllers
 
 import (
-	"fmt"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/papidb/aqua/pkg/api"
 	"github.com/papidb/aqua/pkg/config"
 	"github.com/papidb/aqua/pkg/entities/customers"
 )
@@ -20,12 +21,37 @@ func healthHandler(c *gin.Context, app *config.App) {
 	c.JSON(http.StatusOK, app.Database.Health())
 }
 
-func createCustomerHandler(c *gin.Context) {
-	var req customers.CreateCustomerDTO
-	_ = c.ShouldBindJSON(&req) // Already validated by middleware
-	fmt.Println(&req)
-	// c.JSON(http.StatusOK, gin.H{"message": "Customer created successfully", "customer": req})
-	c.JSON(http.StatusOK, gin.H{"message": "Validation passed"})
+func createCustomerHandler(app *config.App, customerService *customers.CustomerService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req customers.CreateCustomerDTO
+		c.ShouldBindJSON(&req)
+
+		ctx := c.Request.Context()
+		customer, err := customerService.CreateCustomer(ctx, req)
+		if errors.Is(err, customers.ErrExistingEmailOrName{}) {
+			api.Error(c.Request, c.Writer, api.AppErr{
+				Code:    http.StatusBadRequest,
+				Message: err.Error(),
+				Err:     err,
+			})
+			return
+		}
+		if err != nil {
+			api.Error(c.Request, c.Writer, api.AppErr{
+				Code:    http.StatusBadRequest,
+				Message: "We could not create your customer.",
+				Err:     err,
+			})
+			return
+		}
+
+		api.Success(c.Request, c.Writer, &api.AppResponse{
+			Message: "Customer created successfully",
+			Data:    customer,
+			Code:    http.StatusCreated,
+		})
+	}
+
 }
 
 func addCloudResourceHandler(c *gin.Context) {

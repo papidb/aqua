@@ -1,46 +1,61 @@
 package middlewares
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/papidb/aqua/pkg/api"
-
-	"github.com/gin-gonic/gin"
 )
 
+// ErrNotJSON is the error when the request body is not JSON
 var ErrNotJSON = errors.New("body is not JSON")
 
 // ValidationMiddleware is a middleware to validate incoming requests
 func ValidationMiddleware(v validation.Validatable) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Bind the request JSON to the provided struct
+		// Read the request body for logging purposes (before binding)
+		body, err := io.ReadAll(c.Request.Body)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
+			c.Abort()
+			return
+		}
 
-		r := c.Request
+		// Reassign the body so it can be used by the next handler (e.g., binding)
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 
-		contentType := r.Header.Get("Content-Type")
+		// Check Content-Type header for JSON
+		contentType := c.GetHeader("Content-Type")
 		if !strings.Contains(contentType, "application/json") {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format", "details": ErrNotJSON.Error()})
 			c.Abort()
 			return
 		}
 
-		err := json.NewDecoder(r.Body).Decode(v)
+		// Decode the body into the struct
+		err = json.NewDecoder(c.Request.Body).Decode(v)
 		if err != nil && err != io.EOF {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format", "details": err.Error()})
 			c.Abort()
 			return
 		}
 
+		// Perform validation using ozzo-validation
 		err = validation.Validate(v)
+
+		// If validation passes, proceed to the next middleware or handler
 		if err == nil {
+			c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
+			c.Next()
 			return
 		}
-
+		// If validation fails, return the validation errors
 		var e validation.Errors
 		switch {
 		case err == ErrNotJSON:
@@ -55,7 +70,7 @@ func ValidationMiddleware(v validation.Validatable) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, &api.AppErr{
 				Code:    http.StatusBadRequest,
 				Message: "We could not validate your request.",
-				Data:    map[string]any{"validation_error": e},
+				Data:    map[string]interface{}{"validation_error": e},
 			})
 			c.Abort()
 			return
@@ -66,9 +81,7 @@ func ValidationMiddleware(v validation.Validatable) gin.HandlerFunc {
 				Err:     err,
 			})
 			c.Abort()
-			return
 		}
 
-		c.Next()
 	}
 }

@@ -13,7 +13,7 @@ type Customer struct {
 	Name  string `bun:",notnull" json:"firstname"`
 	Email string `json:"email"`
 
-	CreatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp"`
+	CreatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp" json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	DeletedAt time.Time `bun:",soft_delete,nullzero"`
+	DeletedAt time.Time `bun:",soft_delete,nullzero" json:"-"`
 }
