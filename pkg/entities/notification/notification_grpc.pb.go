@@ -28,10 +28,16 @@ const (
 // NotificationServiceClient is the client API for NotificationService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// The NotificationService defines the RPC methods.
 type NotificationServiceClient interface {
+	// Adds a new notification for a user.
 	AddNotification(ctx context.Context, in *AddNotificationRequest, opts ...grpc.CallOption) (*Empty, error)
+	// Retrieves all notifications for a user.
 	GetAllNotifications(ctx context.Context, in *GetAllNotificationsRequest, opts ...grpc.CallOption) (*NotificationList, error)
+	// Clears a single notification by its ID.
 	ClearNotification(ctx context.Context, in *ClearNotificationRequest, opts ...grpc.CallOption) (*Empty, error)
+	// Clears all notifications for a user.
 	ClearAllNotifications(ctx context.Context, in *ClearAllNotificationsRequest, opts ...grpc.CallOption) (*Empty, error)
 }
 
@@ -86,10 +92,16 @@ func (c *notificationServiceClient) ClearAllNotifications(ctx context.Context, i
 // NotificationServiceServer is the server API for NotificationService service.
 // All implementations must embed UnimplementedNotificationServiceServer
 // for forward compatibility.
+//
+// The NotificationService defines the RPC methods.
 type NotificationServiceServer interface {
+	// Adds a new notification for a user.
 	AddNotification(context.Context, *AddNotificationRequest) (*Empty, error)
+	// Retrieves all notifications for a user.
 	GetAllNotifications(context.Context, *GetAllNotificationsRequest) (*NotificationList, error)
+	// Clears a single notification by its ID.
 	ClearNotification(context.Context, *ClearNotificationRequest) (*Empty, error)
+	// Clears all notifications for a user.
 	ClearAllNotifications(context.Context, *ClearAllNotificationsRequest) (*Empty, error)
 	mustEmbedUnimplementedNotificationServiceServer()
 }

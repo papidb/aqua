@@ -5,41 +5,56 @@ package notification;
 // Specify the Go package for generated code.
 option go_package = "./pkg/entities/notification";
 
-
+// The NotificationService defines the RPC methods.
 service NotificationService {
+  // Adds a new notification for a user.
   rpc AddNotification(AddNotificationRequest) returns (Empty);
+
+  // Retrieves all notifications for a user.
   rpc GetAllNotifications(GetAllNotificationsRequest) returns (NotificationList);
+
+  // Clears a single notification by its ID.
   rpc ClearNotification(ClearNotificationRequest) returns (Empty);
+
+  // Clears all notifications for a user.
   rpc ClearAllNotifications(ClearAllNotificationsRequest) returns (Empty);
 }
 
+// Request to add a notification.
 message AddNotificationRequest {
-  string user_id = 1;
-  string message = 2;
+  string user_id = 1;  // The ID of the user receiving the notification.
+  string message = 2;  // The content of the notification.
 }
 
+// Request to get all notifications for a user.
 message GetAllNotificationsRequest {
-  string user_id = 1;
+  string user_id = 1;  // The ID of the user whose notifications are being requested.
 }
 
+// Request to clear a specific notification.
 message ClearNotificationRequest {
-  int64 notification_id = 1;
+  string user_id = 1;  // The ID of the user receiving the notification.
+  string notification_id = 2;  // The unique ID of the notification to be cleared.
 }
 
+// Request to clear all notifications for a user.
 message ClearAllNotificationsRequest {
-  string user_id = 1;
+  string user_id = 1;  // The ID of the user whose notifications should be cleared.
 }
 
+// Represents a single notification.
 message Notification {
-  string id = 1;
-  string user_id = 2;
-  string message = 3;
-  bool read = 4;
-  string created_at = 5;
+  string id = 1;          // Unique ID of the notification.
+  string user_id = 2;     // ID of the user associated with the notification.
+  string message = 3;     // Content of the notification.
+  bool read = 4;          // Whether the notification has been read.
+  string created_at = 5;  // Timestamp when the notification was created.
 }
 
+// Response containing a list of notifications.
 message NotificationList {
-  repeated Notification notifications = 1;
+  repeated Notification notifications = 1;  // List of notifications.
 }
 
+// Empty message used for methods that don't return any specific data.
 message Empty {}

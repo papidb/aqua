@@ -36,6 +36,8 @@ type Env struct {
 	RabbitMQUser     string `envconfig:"RABBITMQ_DEFAULT_USER" required:"true" split_words:"true"`
 	RabbitMQPassword string `envconfig:"RABBITMQ_DEFAULT_PASS" required:"true" split_words:"true"`
 	RabbitMQQueue    string `envconfig:"RABBIT_MQ_QUEUE" required:"true" split_words:"true"`
+
+	RPCPort string `envconfig:"RPC_PORT" required:"true" split_words:"true"`
 }
 
 // LoadEnv loads environment variables into env
