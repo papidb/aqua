@@ -21,7 +21,7 @@ func healthHandler(c *gin.Context, app *config.App) {
 	c.JSON(http.StatusOK, app.Database.Health())
 }
 
-func createCustomerHandler(app *config.App, customerService *customers.CustomerService) gin.HandlerFunc {
+func createCustomerHandler(_ *config.App, customerService *customers.CustomerService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req customers.CreateCustomerDTO
 		c.ShouldBindJSON(&req)

@@ -16,7 +16,11 @@ create table resources (
   updated_at timestamptz,
   deleted_at timestamptz
 );
--- map one customer to many resources
-alter table resources
-add column customer_name text references customers(name) on delete cascade;
+-- Join table to establish many-to-many relationship
+create table customer_resources (
+  customer_id uuid not null references customers(id) on delete cascade,
+  resource_id uuid not null references resources(id) on delete cascade,
+  created_at timestamptz not null DEFAULT current_timestamp,
+  primary key (customer_id, resource_id)
+);
 commit;
