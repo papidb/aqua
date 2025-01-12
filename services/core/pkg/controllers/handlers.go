@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/papidb/aqua/pkg/api"
 	"github.com/papidb/aqua/pkg/config"
 	"github.com/papidb/aqua/pkg/entities/customers"
+	"github.com/papidb/aqua/pkg/entities/resources"
 )
 
 func helloWorldHandler(c *gin.Context) {
@@ -100,7 +100,6 @@ func fetchCloudResourcesHandler(_ *config.App, customerService *customers.Custom
 		}
 
 		if err != nil {
-			fmt.Println(err)
 			api.Error(c.Request, c.Writer, api.AppErr{
 				Code:    http.StatusBadRequest,
 				Message: "We could not fetch the resources.",
@@ -117,10 +116,30 @@ func fetchCloudResourcesHandler(_ *config.App, customerService *customers.Custom
 	}
 }
 
-func updateResourceHandler(_ *config.App) gin.HandlerFunc {
+func updateResourceHandler(_ *config.App, resourceService *resources.ResourceService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "dummy",
+		var dto resources.UpdateResourceDTO
+		c.ShouldBindJSON(&dto)
+		resource_id := c.Param("resource_id")
+
+		resource, err := resourceService.UpdateResource(c.Request.Context(), resource_id, dto)
+		if api.HandleMappedErrors(c, err, errorMapping) {
+			return
+		}
+
+		if err != nil {
+			api.Error(c.Request, c.Writer, api.AppErr{
+				Code:    http.StatusBadRequest,
+				Message: "We could not update resource.",
+				Err:     err,
+			})
+			return
+		}
+
+		api.Success(c.Request, c.Writer, &api.AppResponse{
+			Message: "Updated resource successfully",
+			Data:    resource,
+			Code:    http.StatusCreated,
 		})
 	}
 }

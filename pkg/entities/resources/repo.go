@@ -29,3 +29,12 @@ func (r *Repo) Find(ctx context.Context, id string) (*Resource, error) {
 
 	return resource, err
 }
+
+func (r *Repo) Update(ctx context.Context, resource *Resource) error {
+	_, err := r.db.NewUpdate().
+		Model(resource).
+		Where("id = ?", resource.ID).
+		Exec(ctx)
+
+	return err
+}

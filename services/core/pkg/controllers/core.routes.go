@@ -17,6 +17,7 @@ func MountRoutes(app *config.App, r *gin.Engine) http.Handler {
 	resourceRepo := resources.NewRepo(app.Database.DB)
 
 	customerService := customers.NewService(app.Database.DB, customerRepo, resourceRepo)
+	resourceService := resources.NewService(app.Database.DB, resourceRepo)
 
 	r.GET("/", helloWorldHandler)
 	r.GET("/health", func(ctx *gin.Context) {
@@ -39,7 +40,9 @@ func MountRoutes(app *config.App, r *gin.Engine) http.Handler {
 	// Fetch Cloud Resources by Customer
 	r.GET("/customers/:customer_id/resources", fetchCloudResourcesHandler(app, customerService))
 	// Update Resource Information
-	r.PUT("/resources/:resource_id", updateResourceHandler(app))
+	r.PUT("/resources/:resource_id",
+		middlewares.ValidationBodyMiddleware(&resources.UpdateResourceDTO{}),
+		updateResourceHandler(app, resourceService))
 	// Delete a Resource
 	r.DELETE("/resources/:resource_id", deleteResourceHandler(app))
 
