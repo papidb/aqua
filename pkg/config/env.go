@@ -31,6 +31,11 @@ type Env struct {
 	PostgresPassword   string `required:"true" split_words:"true"`
 	PostgresDatabase   string `required:"true" split_words:"true"`
 	PostgresDebug      bool   `default:"false" split_words:"true"`
+
+	RabbitMQHost     string `required:"true" split_words:"true"`
+	RabbitMQPort     string `required:"true" split_words:"true"`
+	RabbitMQUser     string `required:"true" split_words:"true"`
+	RabbitMQPassword string `required:"true" split_words:"true"`
 }
 
 // LoadEnv loads environment variables into env

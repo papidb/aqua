@@ -12,8 +12,27 @@ services:
     environment:
       - SERVICE_NAME=core-backend
       - PORT=9400
+      - POSTGRES_HOST=host.docker.internal
     ports:
       - "9400:9400"
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    
+  aqua_notification_dev:
+    container_name: aqua_notification_dev
+    image: aqua/backend/notification
+    build:
+      context: .
+      dockerfile: docker/notification/Dockerfile.dev
+    env_file:
+      - .env
+    environment:
+      - SERVICE_NAME=notification-backend
+      - PORT=9401
+      - POSTGRES_HOST=host.docker.internal
+    ports:
+      - "9401:9401"
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
