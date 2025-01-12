@@ -10,7 +10,7 @@ create table customers (
 );
 create table resources (
   id uuid primary key not null default gen_random_uuid(),
-  name text not null,
+  name text not null unique,
   region text not null,
   created_at timestamptz not null default current_timestamp,
   updated_at timestamptz,
