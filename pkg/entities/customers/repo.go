@@ -35,3 +35,27 @@ func (r *Repo) Create(ctx context.Context, customer *Customer) error {
 	return err
 
 }
+
+func (r *Repo) CreateCustomerResource(ctx context.Context, customerResource *CustomerResource) error {
+	_, err := r.db.NewInsert().
+		Model(customerResource).
+		ExcludeColumn("created_at").
+		Returning("*").
+		Exec(ctx)
+
+	if err, ok := err.(*pgconn.PgError); ok && err.Code == pgerrcode.UniqueViolation {
+		return ErrExistingCustomerResource{}
+	}
+	return err
+
+}
+
+func (r *Repo) Find(ctx context.Context, id string) (*Customer, error) {
+	customer := &Customer{}
+	err := r.db.NewSelect().
+		Model(customer).
+		Where("id = ?", id).
+		Scan(ctx)
+
+	return customer, err
+}

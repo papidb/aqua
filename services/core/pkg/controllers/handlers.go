@@ -54,26 +54,64 @@ func createCustomerHandler(_ *config.App, customerService *customers.CustomerSer
 
 }
 
-func addCloudResourceHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "dummy",
-	})
+func addCloudResourceHandler(_ *config.App, customerService *customers.CustomerService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var dto customers.AddResourceToCustomerDTO
+		c.ShouldBindJSON(&dto)
+		customerID := c.Param("customer_id")
+
+		customer, resource, err := customerService.AddResourceToCustomer(c.Request.Context(), customerID, dto)
+
+		if errors.Is(err, customers.ErrExistingCustomerResource{}) {
+			api.Error(c.Request, c.Writer, api.AppErr{
+				Code:    http.StatusBadRequest,
+				Message: err.Error(),
+				Err:     err,
+			})
+			return
+		}
+
+		if (err != nil) || (customer == nil) {
+			api.Error(c.Request, c.Writer, api.AppErr{
+				Code:    http.StatusBadRequest,
+				Message: "We could not add your resource to your customer.",
+				Err:     err,
+			})
+			return
+		}
+
+		data := make(map[string]interface{})
+		data["customer"] = customer
+		data["resource"] = resource
+
+		api.Success(c.Request, c.Writer, &api.AppResponse{
+			Message: "Resource added to customer successfully",
+			Data:    data,
+			Code:    http.StatusCreated,
+		})
+	}
 }
 
-func fetchCloudResourcesHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "dummy",
-	})
+func fetchCloudResourcesHandler(_ *config.App) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "dummy",
+		})
+	}
 }
 
-func updateResourceHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "dummy",
-	})
+func updateResourceHandler(_ *config.App) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "dummy",
+		})
+	}
 }
 
-func deleteResourceHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "dummy",
-	})
+func deleteResourceHandler(_ *config.App) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "dummy",
+		})
+	}
 }

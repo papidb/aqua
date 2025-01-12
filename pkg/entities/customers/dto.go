@@ -23,3 +23,19 @@ type ErrExistingEmailOrName struct{}
 func (e ErrExistingEmailOrName) Error() string {
 	return "email or name already in use"
 }
+
+type ErrExistingCustomerResource struct{}
+
+func (e ErrExistingCustomerResource) Error() string {
+	return "This relationship already exists"
+}
+
+type AddResourceToCustomerDTO struct {
+	ResourceID string `json:"resource_id"`
+}
+
+func (r AddResourceToCustomerDTO) Validate() error {
+	return validation.ValidateStruct(&r,
+		validation.Field(&r.ResourceID, validation.Required, is.UUID),
+	)
+}

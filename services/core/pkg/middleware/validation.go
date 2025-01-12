@@ -16,8 +16,8 @@ import (
 // ErrNotJSON is the error when the request body is not JSON
 var ErrNotJSON = errors.New("body is not JSON")
 
-// ValidationMiddleware is a middleware to validate incoming requests
-func ValidationMiddleware(v validation.Validatable) gin.HandlerFunc {
+// ValidationBodyMiddleware is a middleware to validate incoming requests
+func ValidationBodyMiddleware(v validation.Validatable) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Read the request body for logging purposes (before binding)
 		body, err := io.ReadAll(c.Request.Body)

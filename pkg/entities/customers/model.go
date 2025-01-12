@@ -17,3 +17,10 @@ type Customer struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	DeletedAt time.Time `bun:",soft_delete,nullzero" json:"-"`
 }
+
+type CustomerResource struct {
+	bun.BaseModel `bun:"table:customer_resources,alias:cr"`
+	CustomerID    string    `bun:",pk,type:uuid" json:"customer_id"`
+	ResourceID    string    `bun:",pk,type:uuid" json:"resource_id"`
+	CreatedAt     time.Time `bun:",nullzero,notnull,default:current_timestamp" json:"created_at"`
+}
