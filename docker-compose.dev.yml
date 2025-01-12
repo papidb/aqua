@@ -37,17 +37,17 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  rabbitmq_dev:
+  RABBIT_MQ_dev:
     image: rabbitmq:3-management
-    container_name: rabbitmq_dev
+    container_name: RABBIT_MQ_dev
     ports:
-      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}" # RabbitMQ message broker (AMQP)
-      - "${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}" # RabbitMQ Management Console
+      - "${RABBIT_MQ_PORT}:${RABBIT_MQ_PORT}" # RabbitMQ message broker (AMQP)
+      - "${RABBIT_MQ_MANAGEMENT_PORT}:${RABBIT_MQ_MANAGEMENT_PORT}" # RabbitMQ Management Console
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBIT_MQ_DEFAULT_USER: ${RABBIT_MQ_DEFAULT_USER}
+      RABBIT_MQ_DEFAULT_PASS: ${RABBIT_MQ_DEFAULT_PASS}
     volumes:
-      - rabbitmq_dev_data:/var/lib/rabbitmq
+      - RABBIT_MQ_dev_data:/var/lib/rabbitmq
 
   postgres_dev:
     image: postgres:15
@@ -63,4 +63,4 @@ services:
 
 volumes:
   postgres_dev_data:
-  rabbitmq_dev_data:
+  RABBIT_MQ_dev_data:

@@ -21,7 +21,6 @@ type Env struct {
 	AppEnv ApplicationEnvironment `default:"dev" split_words:"true"`
 	Name   string                 `envconfig:"SERVICE_NAME" required:"true"`
 	Port   int                    `required:"true"`
-	Secret []byte                 `envconfig:"SERVICE_SECRET" required:"true"`
 
 	PostgresHost       string `required:"true" split_words:"true"`
 	PostgresPort       string `required:"true" split_words:"true"`
@@ -32,10 +31,11 @@ type Env struct {
 	PostgresDatabase   string `required:"true" split_words:"true"`
 	PostgresDebug      bool   `default:"false" split_words:"true"`
 
-	RabbitMQHost     string `required:"true" split_words:"true"`
-	RabbitMQPort     string `required:"true" split_words:"true"`
-	RabbitMQUser     string `required:"true" split_words:"true"`
-	RabbitMQPassword string `required:"true" split_words:"true"`
+	RabbitMQHost     string `envconfig:"RABBIT_MQ_DEFAULT_USER" required:"true" split_words:"true"`
+	RabbitMQPort     string `envconfig:"RABBIT_MQ_PORT" required:"true" split_words:"true"`
+	RabbitMQUser     string `envconfig:"RABBIT_MQ_DEFAULT_USER" required:"true" split_words:"true"`
+	RabbitMQPassword string `envconfig:"RABBIT_MQ_DEFAULT_USER" required:"true" split_words:"true"`
+	RabbitMQQueue    string `envconfig:"RABBIT_MQ_DEFAULT_USER" required:"true" split_words:"true"`
 }
 
 // LoadEnv loads environment variables into env

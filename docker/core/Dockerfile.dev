@@ -3,15 +3,27 @@ ARG GO_VERSION=1.22.7
 
 FROM golang:${GO_VERSION} AS builder
 
+# Install dependencies
+RUN apt-get update && apt-get install -y curl
 
-# get air
+# Get air for live reload
 RUN curl -fLo install.sh https://raw.githubusercontent.com/cosmtrek/air/master/install.sh \
     && chmod +x install.sh && sh install.sh && cp ./bin/air /bin/air
 
-# change workspace
+# Set the working directory
 WORKDIR /go/src/app
-ADD . /go/src/app
 
-WORKDIR /go/src/app/
+# Copy only the necessary files initially
+COPY go.mod go.sum ./
 
-CMD air -c .air.core.toml
+# Download Go modules
+RUN go mod download
+
+# Copy the rest of the source files
+COPY . .
+
+# Expose any required ports (optional for development)
+EXPOSE 8080
+
+# Command to start the app with air
+CMD ["air", "-c", ".air.core.toml"]

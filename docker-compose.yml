@@ -27,10 +27,10 @@ services:
       - "5672:5672" # RabbitMQ message broker (AMQP)
       - "15672:15672" # RabbitMQ Management Console
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBIT_MQ_DEFAULT_USER: ${RABBIT_MQ_DEFAULT_USER}
+      RABBIT_MQ_DEFAULT_PASS: ${RABBIT_MQ_DEFAULT_PASS}
     volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
+      - RABBIT_MQ_data:/var/lib/rabbitmq
 
   postgres:
     image: postgres:15
@@ -46,4 +46,4 @@ services:
 
 volumes:
   postgres_data:
-  rabbitmq_data:
+  RABBIT_MQ_data:
