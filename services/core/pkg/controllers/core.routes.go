@@ -30,6 +30,7 @@ func MountRoutes(app *config.App, r *gin.Engine) http.Handler {
 		middlewares.ValidationBodyMiddleware(&customers.CreateCustomerDTO{}),
 		createCustomerHandler(app, customerService),
 	)
+
 	// add cloud resource to customer
 	r.POST(
 		"/customers/:customer_id/resources",
@@ -37,12 +38,15 @@ func MountRoutes(app *config.App, r *gin.Engine) http.Handler {
 		middlewares.ValidationBodyMiddleware(&customers.AddResourceToCustomerDTO{}),
 		addCloudResourceHandler(app, customerService),
 	)
+
 	// Fetch Cloud Resources by Customer
 	r.GET("/customers/:customer_id/resources", fetchCloudResourcesHandler(app, customerService))
+
 	// Update Resource Information
 	r.PUT("/resources/:resource_id",
 		middlewares.ValidationBodyMiddleware(&resources.UpdateResourceDTO{}),
 		updateResourceHandler(app, resourceService))
+
 	// Delete a Resource
 	r.DELETE("/resources/:resource_id", deleteResourceHandler(app, resourceService, customerService))
 
