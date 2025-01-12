@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package notification;
+
+// Specify the Go package for generated code.
+option go_package = "./pkg/entities/notification";
+
+
+service NotificationService {
+  rpc AddNotification(AddNotificationRequest) returns (Empty);
+  rpc GetAllNotifications(GetAllNotificationsRequest) returns (NotificationList);
+  rpc ClearNotification(ClearNotificationRequest) returns (Empty);
+  rpc ClearAllNotifications(ClearAllNotificationsRequest) returns (Empty);
+}
+
+message AddNotificationRequest {
+  string user_id = 1;
+  string message = 2;
+}
+
+message GetAllNotificationsRequest {
+  string user_id = 1;
+}
+
+message ClearNotificationRequest {
+  int64 notification_id = 1;
+}
+
+message ClearAllNotificationsRequest {
+  string user_id = 1;
+}
+
+message Notification {
+  string id = 1;
+  string user_id = 2;
+  string message = 3;
+  bool read = 4;
+  string created_at = 5;
+}
+
+message NotificationList {
+  repeated Notification notifications = 1;
+}
+
+message Empty {}

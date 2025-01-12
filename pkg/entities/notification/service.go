@@ -23,10 +23,10 @@ func (s *NotificationService) AddNotification(userID, message string) {
 	defer s.mu.Unlock()
 
 	notification := Notification{
-		ID:      uuid.New().String(),
-		UserID:  userID,
-		Message: message,
-		Created: time.Now(),
+		Id:        uuid.New().String(),
+		UserId:    userID,
+		Message:   message,
+		CreatedAt: time.Now().String(),
 	}
 	s.notifications[userID] = append(s.notifications[userID], notification)
 }
@@ -43,7 +43,7 @@ func (s *NotificationService) ClearNotification(userID, notificationID string) {
 
 	notifications := s.notifications[userID]
 	for i, n := range notifications {
-		if n.ID == notificationID {
+		if n.Id == notificationID {
 			s.notifications[userID] = append(notifications[:i], notifications[i+1:]...)
 			break
 		}
