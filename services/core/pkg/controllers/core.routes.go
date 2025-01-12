@@ -37,7 +37,7 @@ func MountRoutes(app *config.App, r *gin.Engine) http.Handler {
 		addCloudResourceHandler(app, customerService),
 	)
 	// Fetch Cloud Resources by Customer
-	r.GET("/customers/:customer_id/resources", fetchCloudResourcesHandler(app))
+	r.GET("/customers/:customer_id/resources", fetchCloudResourcesHandler(app, customerService))
 	// Update Resource Information
 	r.PUT("/resources/:resource_id", updateResourceHandler(app))
 	// Delete a Resource

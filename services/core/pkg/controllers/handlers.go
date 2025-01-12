@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -89,10 +90,29 @@ func addCloudResourceHandler(_ *config.App, customerService *customers.CustomerS
 	}
 }
 
-func fetchCloudResourcesHandler(_ *config.App) gin.HandlerFunc {
+func fetchCloudResourcesHandler(_ *config.App, customerService *customers.CustomerService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "dummy",
+		customerID := c.Param("customer_id")
+
+		resources, err := customerService.FetchCloudResourcesByCustomerID(c.Request.Context(), customerID)
+		if api.HandleMappedErrors(c, err, errorMapping) {
+			return
+		}
+
+		if err != nil {
+			fmt.Println(err)
+			api.Error(c.Request, c.Writer, api.AppErr{
+				Code:    http.StatusBadRequest,
+				Message: "We could not fetch the resources.",
+				Err:     err,
+			})
+			return
+		}
+
+		api.Success(c.Request, c.Writer, &api.AppResponse{
+			Message: "Resource added to customer successfully",
+			Data:    resources,
+			Code:    http.StatusCreated,
 		})
 	}
 }
